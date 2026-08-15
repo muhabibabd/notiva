@@ -1,0 +1,566 @@
+/**
+ * Notiva CSS v1.0.0 - Modern Toast & Confirm Modal
+ * Supports 9 positions, Glassmorphism Backdrop Blur, Dark/Light Themes
+ */
+
+:root,
+[data-ss-theme="light"] {
+  --ss-bg: #ffffff;
+  --ss-text: #0f172a;
+  --ss-text-muted: #64748b;
+  --ss-border: #e2e8f0;
+  --ss-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+  --ss-radius: 12px;
+  --ss-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  --ss-zindex: 999999;
+  --ss-width: 360px;
+  --ss-gap: 12px;
+  --ss-scale-step: 0.05;
+  --ss-offset-step: 10px;
+  --ss-backdrop-bg: rgba(15, 23, 42, 0.55);
+  --ss-backdrop-blur: 8px;
+
+  /* Status Colors */
+  --ss-primary: #4f46e5;
+  --ss-primary-hover: #4338ca;
+  --ss-success: #10b981;
+  --ss-success-bg: #ecfdf5;
+  --ss-error: #ef4444;
+  --ss-error-bg: #fef2f2;
+  --ss-warning: #f59e0b;
+  --ss-warning-bg: #fffbeb;
+  --ss-info: #3b82f6;
+  --ss-info-bg: #eff6ff;
+  --ss-cancel: #f1f5f9;
+  --ss-cancel-text: #334155;
+  --ss-cancel-hover: #e2e8f0;
+}
+
+/* Dark Theme */
+[data-ss-theme="dark"],
+.dark:not([data-ss-theme="light"]) {
+  --ss-bg: #0f172a;
+  --ss-text: #f8fafc;
+  --ss-text-muted: #94a3b8;
+  --ss-border: #1e293b;
+  --ss-shadow: 0 14px 34px -5px rgba(0, 0, 0, 0.45), 0 6px 14px -2px rgba(0, 0, 0, 0.35);
+  --ss-backdrop-bg: rgba(2, 6, 23, 0.75);
+  --ss-success-bg: rgba(16, 185, 129, 0.12);
+  --ss-error-bg: rgba(239, 68, 68, 0.12);
+  --ss-warning-bg: rgba(245, 158, 11, 0.12);
+  --ss-info-bg: rgba(59, 130, 246, 0.12);
+  --ss-cancel: #1e293b;
+  --ss-cancel-text: #cbd5e1;
+  --ss-cancel-hover: #334155;
+}
+
+/* System Mode (Auto Dark when OS is dark and not forced light) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-ss-theme="light"]) {
+    --ss-bg: #0f172a;
+    --ss-text: #f8fafc;
+    --ss-text-muted: #94a3b8;
+    --ss-border: #1e293b;
+    --ss-shadow: 0 14px 34px -5px rgba(0, 0, 0, 0.45), 0 6px 14px -2px rgba(0, 0, 0, 0.35);
+    --ss-backdrop-bg: rgba(2, 6, 23, 0.75);
+    --ss-success-bg: rgba(16, 185, 129, 0.12);
+    --ss-error-bg: rgba(239, 68, 68, 0.12);
+    --ss-warning-bg: rgba(245, 158, 11, 0.12);
+    --ss-info-bg: rgba(59, 130, 246, 0.12);
+    --ss-cancel: #1e293b;
+    --ss-cancel-text: #cbd5e1;
+    --ss-cancel-hover: #334155;
+  }
+}
+
+/* ===================================================
+   TOAST CONTAINER (SCOPED 9 POSITIONS)
+   =================================================== */
+
+.ss-container {
+  position: fixed;
+  z-index: var(--ss-zindex);
+  pointer-events: none;
+  box-sizing: border-box;
+  width: var(--ss-width);
+  max-width: calc(100vw - 32px);
+  font-family: var(--ss-font);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.ss-container * {
+  box-sizing: border-box;
+}
+
+/* Top Positions */
+.ss-container.ss-pos-top-left {
+  top: 16px;
+  left: 16px;
+}
+.ss-container.ss-pos-top-center {
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.ss-container.ss-pos-top-right {
+  top: 16px;
+  right: 16px;
+}
+
+/* Center Positions */
+.ss-container.ss-pos-center-left {
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+}
+.ss-container.ss-pos-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.ss-container.ss-pos-center-right {
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+}
+
+/* Bottom Positions */
+.ss-container.ss-pos-bottom-left {
+  bottom: 16px;
+  left: 16px;
+}
+.ss-container.ss-pos-bottom-center {
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.ss-container.ss-pos-bottom-right {
+  bottom: 16px;
+  right: 16px;
+}
+
+/* ===================================================
+   BACKDROP & BACKDROP BLUR
+   =================================================== */
+
+.ss-backdrop {
+  position: fixed;
+  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--ss-backdrop-bg);
+  z-index: calc(var(--ss-zindex) - 1);
+  opacity: 0;
+  pointer-events: auto;
+  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ss-backdrop.ss-visible {
+  opacity: 1;
+}
+
+.ss-backdrop.ss-backdrop-blur {
+  backdrop-filter: blur(var(--ss-backdrop-blur));
+  -webkit-backdrop-filter: blur(var(--ss-backdrop-blur));
+}
+
+/* ===================================================
+   TOAST ITEM 3D STACKING PHYSICS
+   =================================================== */
+
+.ss-toast {
+  --y: 0px;
+  --x: 0px;
+  --scale: 1;
+  --opacity: 1;
+  --drag-x: 0px;
+  --drag-y: 0px;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: var(--ss-bg);
+  color: var(--ss-text);
+  border: 1px solid var(--ss-border);
+  border-radius: var(--ss-radius);
+  box-shadow: var(--ss-shadow);
+  padding: 14px 16px;
+  pointer-events: auto;
+  user-select: none;
+  touch-action: pan-y;
+  cursor: grab;
+  transform: translate3d(calc(var(--x) + var(--drag-x)), calc(var(--y) + var(--drag-y)), 0) scale(var(--scale));
+  opacity: var(--opacity);
+  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.1),
+              opacity 0.25s ease,
+              height 0.25s ease,
+              background-color 0.2s ease,
+              border-color 0.2s ease;
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+
+/* Bottom positions stack from bottom upwards */
+.ss-container.ss-pos-bottom-left .ss-toast,
+.ss-container.ss-pos-bottom-center .ss-toast,
+.ss-container.ss-pos-bottom-right .ss-toast {
+  top: auto;
+  bottom: 0;
+}
+
+/* Center positions: shift up by 50% of toast height so it is truly vertically centered */
+.ss-container.ss-pos-center-left .ss-toast,
+.ss-container.ss-pos-center .ss-toast,
+.ss-container.ss-pos-center-right .ss-toast {
+  transform: translate3d(calc(var(--x) + var(--drag-x)), calc(var(--y) + var(--drag-y) - 50%), 0) scale(var(--scale));
+}
+
+.ss-toast:active {
+  cursor: grabbing;
+}
+
+.ss-toast.ss-dragging {
+  transition: none !important;
+}
+
+/* Stacking Rules */
+.ss-container:not([data-expanded="true"]) .ss-toast[data-index="0"] {
+  --y: 0px;
+  --scale: 1;
+  --opacity: 1;
+  z-index: 50;
+}
+.ss-container:not([data-expanded="true"]) .ss-toast[data-index="1"] {
+  --y: var(--calc-offset-1, 10px);
+  --scale: calc(1 - var(--ss-scale-step));
+  --opacity: 0.92;
+  z-index: 40;
+}
+.ss-container:not([data-expanded="true"]) .ss-toast[data-index="2"] {
+  --y: var(--calc-offset-2, 20px);
+  --scale: calc(1 - (var(--ss-scale-step) * 2));
+  --opacity: 0.75;
+  z-index: 30;
+}
+.ss-container:not([data-expanded="true"]) .ss-toast[data-index="3"] {
+  --y: var(--calc-offset-3, 28px);
+  --scale: calc(1 - (var(--ss-scale-step) * 3));
+  --opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+.ss-container:not([data-expanded="true"]) .ss-toast[data-index]:not([data-index="0"]):not([data-index="1"]):not([data-index="2"]):not([data-index="3"]) {
+  opacity: 0;
+  pointer-events: none;
+  --scale: 0.8;
+}
+
+/* Expanded state (on hover or touch) */
+.ss-container[data-expanded="true"] .ss-toast {
+  --scale: 1 !important;
+  --opacity: 1 !important;
+  --y: var(--expanded-offset, 0px) !important;
+  z-index: calc(50 - var(--index, 0)) !important;
+}
+
+/* Toast Inner Layout */
+.ss-toast-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ss-toast-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-top: 1px;
+}
+
+.ss-toast-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.ss-toast-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.ss-toast-title {
+  font-size: 0.885rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ss-text);
+  margin-bottom: 2px;
+}
+
+.ss-toast-desc {
+  font-size: 0.815rem;
+  line-height: 1.4;
+  color: var(--ss-text-muted);
+  word-break: break-word;
+}
+
+.ss-toast-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ss-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 0.775rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: calc(var(--ss-radius) - 4px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  outline: none;
+}
+
+.ss-btn:focus-visible {
+  box-shadow: 0 0 0 2px var(--ss-bg), 0 0 0 4px var(--ss-primary);
+}
+
+.ss-btn-primary {
+  background-color: var(--ss-primary);
+  color: #ffffff;
+}
+.ss-btn-primary:hover {
+  background-color: var(--ss-primary-hover);
+}
+
+.ss-btn-cancel {
+  background-color: var(--ss-cancel);
+  color: var(--ss-cancel-text);
+  border-color: var(--ss-border);
+}
+.ss-btn-cancel:hover {
+  background-color: var(--ss-cancel-hover);
+}
+
+.ss-toast-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--ss-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.ss-toast-close:hover {
+  opacity: 1;
+  background-color: rgba(125, 125, 125, 0.15);
+}
+
+/* Progress bar timer */
+.ss-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background-color: var(--ss-primary);
+  width: 100%;
+  transform-origin: left;
+  animation: ss-progress linear forwards;
+}
+
+@keyframes ss-progress {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* ===================================================
+   CONFIRM & PROMPT MODAL STYLES (9 POSITIONS)
+   =================================================== */
+
+.ss-modal-overlay {
+  position: fixed;
+  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: var(--ss-zindex);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  font-family: var(--ss-font);
+  pointer-events: auto;
+  overflow-y: auto;
+}
+
+/* Saat overlay sedang di-close (JS set pointer-events:none inline), 
+   pastikan tidak ada klik yang tersangkut */
+.ss-modal-overlay[style*="pointer-events: none"],
+.ss-modal-overlay[style*="pointer-events:none"] {
+  pointer-events: none !important;
+}
+
+.ss-modal-overlay * {
+  box-sizing: border-box;
+}
+
+/* 9 Positions for Modal dialog */
+.ss-modal-overlay.ss-pos-top-left { align-items: flex-start; justify-content: flex-start; }
+.ss-modal-overlay.ss-pos-top-center { align-items: flex-start; justify-content: center; }
+.ss-modal-overlay.ss-pos-top-right { align-items: flex-start; justify-content: flex-end; }
+.ss-modal-overlay.ss-pos-center-left { align-items: center; justify-content: flex-start; }
+.ss-modal-overlay.ss-pos-center { align-items: center; justify-content: center; }
+.ss-modal-overlay.ss-pos-center-right { align-items: center; justify-content: flex-end; }
+.ss-modal-overlay.ss-pos-bottom-left { align-items: flex-end; justify-content: flex-start; }
+.ss-modal-overlay.ss-pos-bottom-center { align-items: flex-end; justify-content: center; }
+.ss-modal-overlay.ss-pos-bottom-right { align-items: flex-end; justify-content: flex-end; }
+
+.ss-modal {
+  position: relative;
+  background-color: var(--ss-bg);
+  color: var(--ss-text);
+  border: 1px solid var(--ss-border);
+  border-radius: calc(var(--ss-radius) + 4px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  width: 100%;
+  max-width: 440px;
+  padding: 26px 24px;
+  pointer-events: auto;
+  opacity: 0;
+  transform: scale(0.92) translateY(10px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+  overflow: hidden;
+  margin: auto;
+}
+
+.ss-modal.ss-modal-visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.ss-modal-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  margin: 0 auto 16px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ss-modal-icon-wrapper svg {
+  width: 32px;
+  height: 32px;
+}
+
+.ss-modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ss-text);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.ss-modal-text {
+  font-size: 0.9rem;
+  color: var(--ss-text-muted);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.ss-modal-input-wrap {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.ss-modal-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background-color: var(--ss-bg);
+  color: var(--ss-text);
+  border: 1px solid var(--ss-border);
+  border-radius: var(--ss-radius);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.ss-modal-input:focus {
+  border-color: var(--ss-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.ss-modal-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.ss-modal-btn {
+  flex: 1;
+  padding: 10px 18px;
+  font-size: 0.885rem;
+  font-weight: 600;
+  border-radius: var(--ss-radius);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  outline: none;
+}
+
+.ss-modal-btn-confirm {
+  background-color: var(--ss-primary);
+  color: #ffffff;
+}
+.ss-modal-btn-confirm:hover {
+  background-color: var(--ss-primary-hover);
+  transform: translateY(-1px);
+}
+
+.ss-modal-btn-cancel {
+  background-color: var(--ss-cancel);
+  color: var(--ss-cancel-text);
+  border-color: var(--ss-border);
+}
+.ss-modal-btn-cancel:hover {
+  background-color: var(--ss-cancel-hover);
+}
+
+/* Spinner Animation for Loading State */
+@keyframes ss-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.ss-spin {
+  animation: ss-spin 0.9s linear infinite;
+  transform-origin: center;
+}

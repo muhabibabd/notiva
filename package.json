@@ -1,0 +1,58 @@
+{
+  "name": "notiva",
+  "version": "1.0.1",
+  "description": "Modern Toast Notification & Confirm Modal Library for HTML, PHP, Laravel, Tailwind CSS & modern JS frameworks — 9 positions, backdrop blur, dark/light/system themes",
+  "main": "dist/notiva.js",
+  "module": "dist/notiva.esm.js",
+  "types": "dist/notiva.d.ts",
+  "style": "dist/notiva.css",
+  "exports": {
+    ".": {
+      "types": "./dist/notiva.d.ts",
+      "import": "./dist/notiva.esm.js",
+      "require": "./dist/notiva.js"
+    },
+    "./dist/notiva.css": "./dist/notiva.css",
+    "./style.css": "./dist/notiva.css"
+  },
+  "files": [
+    "dist",
+    "laravel",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "vite --port 3000",
+    "build": "vite build",
+    "preview": "vite preview --port 3000"
+  },
+  "keywords": [
+    "toast",
+    "notification",
+    "modal",
+    "dialog",
+    "confirm",
+    "alert",
+    "tailwind",
+    "laravel",
+    "blade",
+    "php",
+    "vanilla-js"
+  ],
+  "author": "Habib Abdillah",
+  "license": "MIT",
+  "homepage": "https://notiva.habibabdillah.my.id",
+  "bugs": {
+    "url": "https://github.com/muhabibabd/notiva/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muhabibabd/notiva"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.5",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "vite": "^8.2.1"
+  }
+}
