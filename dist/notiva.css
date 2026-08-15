@@ -195,8 +195,8 @@
   cursor: grab;
   transform: translate3d(calc(var(--x) + var(--drag-x)), calc(var(--y) + var(--drag-y)), 0) scale(var(--scale));
   opacity: var(--opacity);
-  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.1),
-              opacity 0.25s ease,
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.2s ease,
               height 0.25s ease,
               background-color 0.2s ease,
               border-color 0.2s ease;

@@ -1,10 +1,19 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Notiva — Modern Toast & Confirm Modal for All Web Stacks</title>
     <meta name="description" content="Versatile, zero-dependency Toast Notification and Confirm Modal library for React, Vue, Svelte, Next.js, Laravel, PHP, and Vanilla JS." />
+
+    <!-- Detect and apply System theme on load -->
+    <script>
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>

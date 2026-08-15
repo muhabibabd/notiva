@@ -80,14 +80,25 @@
       container.className = 'ss-container ss-pos-' + pos;
       container.setAttribute('data-position', pos);
 
-      // Mouse enter / leave for Hover expand
+      // Mouse enter / leave for Hover expand with debounce
+      var collapseTimer = null;
+
       container.addEventListener('mouseenter', function () {
+        if (collapseTimer) {
+          clearTimeout(collapseTimer);
+          collapseTimer = null;
+        }
         container.setAttribute('data-expanded', 'true');
         updateStack(pos);
       });
+
       container.addEventListener('mouseleave', function () {
-        container.removeAttribute('data-expanded');
-        updateStack(pos);
+        if (collapseTimer) clearTimeout(collapseTimer);
+        collapseTimer = setTimeout(function () {
+          container.removeAttribute('data-expanded');
+          updateStack(pos);
+          collapseTimer = null;
+        }, 180);
       });
 
       document.body.appendChild(container);
@@ -370,8 +381,8 @@
 
       // Allow dragging in X and subtle Y
       el.style.setProperty('--drag-x', currentX + 'px');
-      el.style.setProperty('--drag-y', (currentY * 0.2) + 'px');
-      var opacity = Math.max(0.2, 1 - Math.abs(currentX) / 200);
+      el.style.setProperty('--drag-y', (currentY * 0.15) + 'px');
+      var opacity = Math.max(0.15, 1 - Math.abs(currentX) / 220);
       el.style.opacity = opacity;
     }
 
@@ -382,17 +393,16 @@
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
 
-      // If dragged further than 80px, dismiss
-      if (Math.abs(currentX) > 80) {
-        var direction = currentX > 0 ? 300 : -300;
-        el.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+      // If dragged further than 60px, smoothly dismiss horizontally without bouncing
+      if (Math.abs(currentX) > 60) {
+        var direction = currentX > 0 ? 400 : -400;
+        el.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.2s ease';
         el.style.setProperty('--drag-x', direction + 'px');
         el.style.opacity = '0';
-        setTimeout(function () {
-          dismiss(id);
-        }, 220);
+        dismiss(id, true);
       } else {
-        // Spring back
+        // Spring back smoothly
+        el.style.transition = 'transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.1), opacity 0.2s ease';
         el.style.setProperty('--drag-x', '0px');
         el.style.setProperty('--drag-y', '0px');
         el.style.opacity = '';
@@ -405,7 +415,7 @@
   /**
    * Dismiss single toast
    */
-  function dismiss(id) {
+  function dismiss(id, isSwiped) {
     POSITIONS.forEach(function (pos) {
       var list = toastsByPosition[pos];
       if (!list) return;
@@ -424,15 +434,22 @@
         if (toastObj.timerId) clearTimeout(toastObj.timerId);
         if (toastObj.hasBackdrop) hideBackdrop();
 
-        el.style.transition = 'all 0.25s cubic-bezier(0.4, 0, 1, 1)';
-        el.style.opacity = '0';
-        el.style.transform = 'scale(0.85) translateY(10px)';
+        // If not swiped horizontally, animate out via vertical fade
+        if (!isSwiped) {
+          el.style.transition = 'transform 0.22s cubic-bezier(0.4, 0, 1, 1), opacity 0.2s ease';
+          el.style.opacity = '0';
+          el.style.setProperty('--scale', '0.85');
+          el.style.setProperty('--drag-y', '10px');
+        }
 
+        // Immediately update stack so other cards in the list smoothly slide into place
+        list.splice(index, 1);
+        updateStack(pos);
+
+        // Remove from DOM when animation completes
         setTimeout(function () {
-          if (el.parentNode) el.parentNode.removeChild(el);
-          list.splice(index, 1);
-          updateStack(pos);
-        }, 240);
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        }, 220);
       }
     });
   }
