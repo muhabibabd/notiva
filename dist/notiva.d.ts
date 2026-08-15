@@ -52,6 +52,10 @@ export interface ToastOptions {
 }
 
 export interface ConfirmOptions extends ToastOptions {
+  /** Raw HTML string rendered in the modal body. ⚠️ Only use trusted (developer-controlled) content. For user content, use Notiva.escape() first. */
+  html?: string;
+  /** Callback receiving the content HTMLElement for full DOM control (modals only). */
+  render?: (el: HTMLElement) => void;
   confirmButtonText?: string;
   confirmText?: string;
   cancelButtonText?: string;
@@ -60,6 +64,28 @@ export interface ConfirmOptions extends ToastOptions {
   cancelButtonColor?: string;
   backdropColor?: string;
   allowOutsideClick?: boolean;
+  /** Show or hide the confirm button. Default: true */
+  showConfirmButton?: boolean;
+  /** Show or hide the cancel button. Default: true for confirm, false for alert */
+  showCancelButton?: boolean;
+  /** Auto-close the modal after N milliseconds and resolve with true. */
+  timer?: number;
+  /** Show a shrinking progress bar inside the modal when timer is set. */
+  timerProgressBar?: boolean;
+  /** Custom max-width for the modal popup. e.g. '700px' or 600 */
+  width?: string | number;
+  /** Add custom CSS class names to modal sub-elements. */
+  customClass?: {
+    popup?: string;
+    confirmButton?: string;
+    cancelButton?: string;
+    title?: string;
+    htmlContainer?: string;
+  };
+  /** Swap the position of confirm and cancel buttons. Default: false */
+  reverseButtons?: boolean;
+  /** Allow closing the modal with the Escape key. Default: true */
+  allowEscapeKey?: boolean;
 }
 
 export interface PromptOptions extends ConfirmOptions {
@@ -116,6 +142,7 @@ export interface NotivaInstance {
   alert(options?: ConfirmOptions | string): Promise<boolean>;
   config(options?: Partial<GlobalConfig>): GlobalConfig;
   setTheme(theme: 'light' | 'dark' | 'system' | 'auto'): void;
+  escape(str: string): string;
   dismiss(id: string): void;
   dismissAll(): void;
 }

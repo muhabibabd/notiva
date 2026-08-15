@@ -1,8 +1,10 @@
 /**
- * Notiva JS v1.0.1
+ * Notiva JS v1.1.0
  * Ultra-smooth 3D Stacking + Notiva Simple API + Confirm Modals
  * Supports 9 positions, Backdrop Blur Glassmorphism, Theme Switcher, and Laravel Helpers.
  * Zero Dependencies.
+ * New in v1.1.0: html/render, showConfirmButton, showCancelButton, timer auto-close,
+ *   timerProgressBar, width, customClass, reverseButtons, allowEscapeKey, Notiva.escape()
  */
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -179,6 +181,21 @@
   function uid() {
     return 'ss_' + (++idCounter) + '_' + Date.now();
   }
+
+  /**
+   * Notiva.escape(str) — HTML-escape a string for safe insertion into html option.
+   * Use this when the content comes from user input to prevent XSS.
+   * @param {string} str
+   * @returns {string}
+   */
+  toast.escape = function (str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  };
 
   /**
    * Core Toast Creator
@@ -559,11 +576,12 @@
   /**
    * Confirm Modal Dialog (Promise-based)
    * Supports 9 positions, Backdrop, BackdropBlur, Custom Buttons & Colors
+   * v1.1.0: html, render, showConfirmButton, showCancelButton, timer, timerProgressBar,
+   *         width, customClass, reverseButtons, allowEscapeKey
    */
   toast.confirm = function (arg1, arg2, arg3) {
     var options = parseArgs(arg1, arg2, arg3, 'warning');
     var title = options.title || 'Apakah Anda yakin?';
-    var text = options.text || options.description || '';
     var icon = options.icon || 'warning';
     var pos = options.position || 'center';
     var confirmText = options.confirmButtonText || options.confirmText || 'Ya, Lanjutkan';
@@ -572,6 +590,12 @@
     var cancelColor = options.cancelButtonColor || '';
     var isBackdropBlur = options.backdropBlur !== undefined ? options.backdropBlur : true;
     var backdropColor = options.backdropColor || null;
+    var showConfirmBtn = options.showConfirmButton !== false;
+    var showCancelBtn = options.showCancelButton !== false;
+    var autoTimer = options.timer || null;
+    var showTimerBar = options.timerProgressBar && autoTimer;
+    var reverseButtons = options.reverseButtons || false;
+    var customClass = options.customClass || {};
 
     return new Promise(function (resolve) {
       showBackdrop(isBackdropBlur, backdropColor);
@@ -579,6 +603,14 @@
       var overlay = document.createElement('div');
       overlay.className = 'ss-modal-overlay ss-pos-' + pos;
 
+      var modal = document.createElement('div');
+      modal.className = 'ss-modal' + (customClass.popup ? ' ' + customClass.popup : '');
+      if (options.background) modal.style.backgroundColor = options.background;
+      if (options.color) modal.style.color = options.color;
+      if (options.borderColor) modal.style.borderColor = options.borderColor;
+      if (options.width) modal.style.maxWidth = typeof options.width === 'number' ? options.width + 'px' : options.width;
+
+      // Icon
       var iconHtml = '';
       if (ICONS[icon]) {
         var iconColor = options.iconColor || (config.colors[icon] || (icon === 'danger' ? config.colors.error : config.colors.warning));
@@ -588,20 +620,51 @@
           '</div>';
       }
 
-      var modal = document.createElement('div');
-      modal.className = 'ss-modal';
-      if (options.background) modal.style.backgroundColor = options.background;
-      if (options.color) modal.style.color = options.color;
-      if (options.borderColor) modal.style.borderColor = options.borderColor;
+      // Title
+      var titleHtml = '<div class="ss-modal-title' + (customClass.title ? ' ' + customClass.title : '') + '">' + title + '</div>';
 
-      modal.innerHTML =
-        iconHtml +
-        '<div class="ss-modal-title">' + title + '</div>' +
-        (text ? '<div class="ss-modal-text">' + text + '</div>' : '') +
-        '<div class="ss-modal-buttons">' +
-          (cancelText ? '<button type="button" class="ss-modal-btn ss-modal-btn-cancel ss-btn-modal-cancel">' + cancelText + '</button>' : '') +
-          '<button type="button" class="ss-modal-btn ss-modal-btn-confirm ss-btn-modal-confirm" style="background-color: ' + confirmColor + '">' + confirmText + '</button>' +
-        '</div>';
+      // Buttons
+      var confirmBtnHtml = showConfirmBtn
+        ? '<button type="button" class="ss-modal-btn ss-modal-btn-confirm ss-btn-modal-confirm' + (customClass.confirmButton ? ' ' + customClass.confirmButton : '') + '" style="background-color: ' + confirmColor + '">' + confirmText + '</button>'
+        : '';
+      var cancelBtnHtml = (showCancelBtn && cancelText)
+        ? '<button type="button" class="ss-modal-btn ss-modal-btn-cancel ss-btn-modal-cancel' + (customClass.cancelButton ? ' ' + customClass.cancelButton : '') + '">' + cancelText + '</button>'
+        : '';
+      var buttonsInner = reverseButtons
+        ? confirmBtnHtml + cancelBtnHtml
+        : cancelBtnHtml + confirmBtnHtml;
+      var buttonsHtml = (showConfirmBtn || (showCancelBtn && cancelText))
+        ? '<div class="ss-modal-buttons">' + buttonsInner + '</div>'
+        : '';
+
+      // Timer progress bar
+      var timerBarHtml = showTimerBar
+        ? '<div class="ss-modal-timer-bar"><div class="ss-modal-timer-progress" style="animation-duration: ' + autoTimer + 'ms;"></div></div>'
+        : '';
+
+      modal.innerHTML = iconHtml + titleHtml + timerBarHtml + buttonsHtml;
+
+      // Content: html string, render callback, or plain text
+      var contentEl = null;
+      var text = options.html || options.text || options.description || '';
+      if (options.html || options.render || text) {
+        contentEl = document.createElement('div');
+        contentEl.className = 'ss-modal-text' + (customClass.htmlContainer ? ' ' + customClass.htmlContainer : '');
+        if (options.html) {
+          contentEl.innerHTML = options.html; // trusted HTML from developer
+        } else if (typeof options.render === 'function') {
+          options.render(contentEl);           // DOM callback
+        } else {
+          contentEl.textContent = text;        // safe plain text
+        }
+        // Insert after title
+        var titleEl = modal.querySelector('.ss-modal-title');
+        if (titleEl && titleEl.nextSibling) {
+          modal.insertBefore(contentEl, titleEl.nextSibling);
+        } else {
+          modal.appendChild(contentEl);
+        }
+      }
 
       if (cancelColor) {
         var cBtn = modal.querySelector('.ss-btn-modal-cancel');
@@ -617,9 +680,12 @@
       });
 
       var isClosed = false;
+      var autoTimerId = null;
+
       function cleanup(result) {
         if (isClosed) return;
         isClosed = true;
+        if (autoTimerId) clearTimeout(autoTimerId);
         window.removeEventListener('keydown', onKeyDown);
         modal.classList.remove('ss-modal-visible');
         overlay.style.pointerEvents = 'none';
@@ -647,18 +713,21 @@
         });
       }
 
+      // Auto-close timer
+      if (autoTimer) {
+        autoTimerId = setTimeout(function () { cleanup(true); }, autoTimer);
+      }
+
       // Close on Outside Click
       if (options.allowOutsideClick !== false) {
         overlay.addEventListener('click', function (e) {
-          if (e.target === overlay) {
-            cleanup(false);
-          }
+          if (e.target === overlay) cleanup(false);
         });
       }
 
       // Close on ESC
       function onKeyDown(e) {
-        if (e.key === 'Escape') {
+        if (e.key === 'Escape' && options.allowEscapeKey !== false) {
           cleanup(false);
         }
       }
@@ -668,11 +737,12 @@
 
   /**
    * Prompt Modal Dialog (Input text)
+   * v1.1.0: width, customClass, allowEscapeKey
    */
   toast.prompt = function (arg1, arg2, arg3) {
     var options = parseArgs(arg1, arg2, arg3, 'question');
     var title = options.title || 'Masukkan Data';
-    var text = options.text || '';
+    var text = options.text || options.description || '';
     var inputType = options.inputType || 'text';
     var placeholder = options.placeholder || '';
     var defaultValue = options.value || '';
@@ -681,6 +751,7 @@
     var required = options.required || false;
     var pos = options.position || 'center';
     var isBackdropBlur = options.backdropBlur !== undefined ? options.backdropBlur : true;
+    var customClass = options.customClass || {};
 
     return new Promise(function (resolve) {
       showBackdrop(isBackdropBlur, options.backdropColor);
@@ -689,18 +760,19 @@
       overlay.className = 'ss-modal-overlay ss-pos-' + pos;
 
       var modal = document.createElement('div');
-      modal.className = 'ss-modal';
+      modal.className = 'ss-modal' + (customClass.popup ? ' ' + customClass.popup : '');
       if (options.background) modal.style.backgroundColor = options.background;
+      if (options.width) modal.style.maxWidth = typeof options.width === 'number' ? options.width + 'px' : options.width;
 
       modal.innerHTML =
-        '<div class="ss-modal-title">' + title + '</div>' +
-        (text ? '<div class="ss-modal-text">' + text + '</div>' : '') +
+        '<div class="ss-modal-title' + (customClass.title ? ' ' + customClass.title : '') + '">' + title + '</div>' +
+        (text ? '<div class="ss-modal-text' + (customClass.htmlContainer ? ' ' + customClass.htmlContainer : '') + '">' + text + '</div>' : '') +
         '<div class="ss-modal-input-wrap">' +
           '<input type="' + inputType + '" class="ss-modal-input" placeholder="' + placeholder + '" value="' + defaultValue + '" />' +
         '</div>' +
         '<div class="ss-modal-buttons">' +
-          '<button type="button" class="ss-modal-btn ss-modal-btn-cancel ss-btn-modal-cancel">' + cancelText + '</button>' +
-          '<button type="button" class="ss-modal-btn ss-modal-btn-confirm ss-btn-modal-confirm">' + confirmText + '</button>' +
+          '<button type="button" class="ss-modal-btn ss-modal-btn-cancel ss-btn-modal-cancel' + (customClass.cancelButton ? ' ' + customClass.cancelButton : '') + '">' + cancelText + '</button>' +
+          '<button type="button" class="ss-modal-btn ss-modal-btn-confirm ss-btn-modal-confirm' + (customClass.confirmButton ? ' ' + customClass.confirmButton : '') + '">' + confirmText + '</button>' +
         '</div>';
 
       overlay.appendChild(modal);
@@ -716,6 +788,7 @@
       function cleanup(val) {
         if (isClosed) return;
         isClosed = true;
+        window.removeEventListener('keydown', onKeyDownPrompt);
         modal.classList.remove('ss-modal-visible');
         overlay.style.pointerEvents = 'none';
         hideBackdrop();
@@ -751,20 +824,28 @@
         });
       }
 
+      function onKeyDownPrompt(e) {
+        if (e.key === 'Enter') handleConfirm();
+        if (e.key === 'Escape' && options.allowEscapeKey !== false) cleanup(null);
+      }
+      window.addEventListener('keydown', onKeyDownPrompt);
+      // Also listen on input for Enter
       inputEl.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') handleConfirm();
-        if (e.key === 'Escape') cleanup(null);
       });
     });
   };
 
   /**
    * Alert Modal (Simple OK dialog)
+   * Passes all v1.1.0 options through to confirm()
    */
   toast.alert = function (arg1, arg2, arg3) {
     var opts = parseArgs(arg1, arg2, arg3, 'info');
     opts.confirmButtonText = opts.confirmButtonText || 'OK';
-    opts.cancelButtonText = '';
+    // alert never shows cancel button by default
+    if (opts.showCancelButton === undefined) opts.showCancelButton = false;
+    opts.cancelButtonText = opts.cancelButtonText || '';
     return toast.confirm(opts);
   };
 

@@ -18,13 +18,16 @@
 ## ✨ Features
 
 * 🚀 **Universal & Simple API**: Trigger with `toast('Title')`, `toast.success()`, `toast.fire()`, `toast.confirm()`, or `toast.prompt()`.
-* 📦 **Works Everywhere**: Zero external dependencies (< 10KB). Supports React, Vue 3, Svelte, Next.js (App & Pages Router), Nuxt, Astro, Laravel Blade, PHP, and Vanilla JS.
-* 🥞 **Smooth 3D Stacking Physics**: Multiple active toasts stack gracefully with depth and auto-expand on hover or touch.
+* 📦 **Works Everywhere**: Zero external dependencies (< 19KB). Supports React, Vue 3, Svelte, Next.js, Nuxt, Astro, Laravel Blade, PHP, and Vanilla JS.
+* 🎨 **HTML & Rich Content**: Full support for custom HTML formatting, lists, badges, and DOM callbacks (`render`).
+* ⏱️ **Auto-close Modals**: Dismiss alerts with countdown timer progress bars (`timerProgressBar`).
+* 🎛️ **Custom Width & Class Overrides**: Fine-tune modal layout with `width`, `customClass`, and `reverseButtons`.
 * 🧭 **9 Position Anchors**: Full viewport coverage (`top-left`, `top-center`, `top-right`, `center-left`, `center`, `center-right`, `bottom-left`, `bottom-center`, `bottom-right`).
 * 🛡️ **Async Confirm & Prompt Modals**: Native `Promise`-based modal dialogs returning `boolean` or `string` via clean `async/await`.
 * 🪟 **Glassmorphism Backdrop & Blur**: Enable frosted-glass background blur overlays on both toasts and modals.
-* 🌗 **Light, Dark & System Modes**: Seamlessly synchronizes with Tailwind CSS `.dark` class and listens to the user's OS color scheme in real time via `matchMedia`.
-* ⚡ **Promise State Tracking**: `toast.promise()` automatically handles loading, success, and error transitions for asynchronous tasks and HTTP requests.
+* 🥞 **Smooth 3D Stacking Physics**: Multiple active toasts stack gracefully with depth and auto-expand on hover or touch.
+* 🌗 **Light, Dark & System Modes**: Seamlessly synchronizes with Tailwind CSS `.dark` class and listens to OS color scheme.
+* ⚡ **Promise State Tracking**: `toast.promise()` automatically handles loading, success, and error transitions for async tasks.
 * 🎨 **Flexible Styling Overrides**: Global configuration via `toast.config()` and granular per-alert color overrides.
 * 🐘 **Laravel / PHP Integration**: Includes built-in Session Flash helper class and Blade render component.
 * 📘 **TypeScript Ready**: Complete `.d.ts` type declarations with full IDE autocompletion.

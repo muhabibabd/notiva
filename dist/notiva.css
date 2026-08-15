@@ -554,6 +554,31 @@
   background-color: var(--ss-cancel-hover);
 }
 
+/* Timer Progress Bar (timerProgressBar option) */
+.ss-modal-timer-bar {
+  width: 100%;
+  height: 4px;
+  background-color: var(--ss-border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.ss-modal-timer-progress {
+  height: 100%;
+  background-color: var(--ss-primary);
+  border-radius: 2px;
+  width: 100%;
+  animation: ss-modal-timer-shrink linear forwards;
+  transform-origin: left center;
+}
+
+@keyframes ss-modal-timer-shrink {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+
+
 /* Spinner Animation for Loading State */
 @keyframes ss-spin {
   from { transform: rotate(0deg); }

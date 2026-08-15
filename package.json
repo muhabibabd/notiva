@@ -1,6 +1,6 @@
 {
   "name": "notiva",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Modern Toast Notification & Confirm Modal Library for HTML, PHP, Laravel, Tailwind CSS & modern JS frameworks — 9 positions, backdrop blur, dark/light/system themes",
   "main": "dist/notiva.js",
   "module": "dist/notiva.esm.js",

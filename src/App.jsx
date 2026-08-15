@@ -281,6 +281,74 @@ toast.success('Step 3/3: Database synchronized!');`,
           toast.success('Step 3/3: Database synchronized!', { position: currentPosition });
         }, 500);
       }
+    },
+    {
+      id: 'custom-html',
+      title: 'Custom HTML content & custom width modal',
+      desc: 'Render rich HTML (lists, badges, colored boxes) inside modal with custom width (v1.1.0).',
+      code: `await toast.confirm({
+  title: 'Synchronization Report',
+  icon: 'info',
+  width: '560px',
+  html: \`
+    <div style="text-align: left; background: rgba(99, 102, 241, 0.08); padding: 14px; border-radius: 8px; font-size: 0.88rem; line-height: 1.5;">
+      <p style="margin: 0 0 8px 0; font-weight: 600;"><b>3 items</b> require attention:</p>
+      <ul style="margin: 0; padding-left: 18px;">
+        <li>Student ID #1042 — <em>Missing birth certificate</em></li>
+        <li>Student ID #1088 — <em>Invalid NISN format</em></li>
+        <li>Teacher #402 — <em>Email unverified</em></li>
+      </ul>
+    </div>
+  \`,
+  confirmButtonText: 'Download Log',
+  cancelButtonText: 'Dismiss'
+});`,
+      action: async () => {
+        await toast.confirm({
+          title: 'Synchronization Report',
+          icon: 'info',
+          width: '560px',
+          html: `
+            <div style="text-align: left; background: rgba(99, 102, 241, 0.08); padding: 14px; border-radius: 8px; font-size: 0.88rem; line-height: 1.5;">
+              <p style="margin: 0 0 8px 0; font-weight: 600;"><b>3 items</b> require attention:</p>
+              <ul style="margin: 0; padding-left: 18px;">
+                <li>Student ID #1042 — <em>Missing birth certificate</em></li>
+                <li>Student ID #1088 — <em>Invalid NISN format</em></li>
+                <li>Teacher #402 — <em>Email unverified</em></li>
+              </ul>
+            </div>
+          `,
+          confirmButtonText: 'Download Log',
+          cancelButtonText: 'Dismiss',
+          backdrop: true,
+          backdropBlur: true
+        });
+      }
+    },
+    {
+      id: 'autoclose-modal',
+      title: 'Auto-close modal with countdown progress bar',
+      desc: 'Timed alert modal that automatically dismisses itself with an animated progress bar (v1.1.0).',
+      code: `toast.alert({
+  title: 'Auto-closing in 2.5 seconds...',
+  text: 'This modal will close itself automatically without button clicks.',
+  icon: 'success',
+  timer: 2500,
+  timerProgressBar: true,
+  showConfirmButton: false
+});`,
+      action: () => {
+        toast.alert({
+          title: 'Auto-closing in 2.5 seconds...',
+          text: 'This modal will close itself automatically without button clicks.',
+          icon: 'success',
+          timer: 2500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          backdrop: true,
+          backdropBlur: true
+        });
+      }
     }
   ];
 
@@ -309,21 +377,35 @@ toast.success('Step 3/3: Database synchronized!');`,
 
     // Confirm Modal Options
     { category: 'confirm', name: 'title', type: 'string', default: "'Confirm'", desc: 'Main headline title for the modal dialog.' },
-    { category: 'confirm', name: 'text', type: 'string', default: "''", desc: 'Explanatory description text for the confirmation action.' },
+    { category: 'confirm', name: 'text', type: 'string', default: "''", desc: 'Plain text description for the confirmation action (auto-escaped).' },
+    { category: 'confirm', name: 'html', type: 'string (HTML)', default: 'undefined', desc: 'Raw HTML string rendered inside the modal body for rich formatting (v1.1.0).' },
+    { category: 'confirm', name: 'render', type: 'function(element)', default: 'undefined', desc: 'Custom DOM callback receiving the modal content HTMLElement for dynamic injection (v1.1.0).' },
     { category: 'confirm', name: 'icon', type: "'warning' | 'question' | 'info' | 'error' | 'success'", default: "'warning'", desc: 'Large animated icon badge centered above the modal dialog text.' },
     { category: 'confirm', name: 'confirmButtonText', type: 'string', default: "'Confirm'", desc: 'Label text displayed inside the primary confirmation button.' },
     { category: 'confirm', name: 'cancelButtonText', type: 'string', default: "'Cancel'", desc: 'Label text displayed inside the secondary cancellation button.' },
     { category: 'confirm', name: 'confirmButtonColor', type: 'string (CSS Color)', default: "'#6366f1'", desc: 'Background color of confirm button (e.g. "#ef4444" for dangerous delete actions).' },
     { category: 'confirm', name: 'cancelButtonColor', type: 'string (CSS Color)', default: "'#94a3b8'", desc: 'Background color of cancel button.' },
+    { category: 'confirm', name: 'showConfirmButton', type: 'boolean', default: 'true', desc: 'Toggle visibility of the confirm button (v1.1.0).' },
+    { category: 'confirm', name: 'showCancelButton', type: 'boolean', default: 'true', desc: 'Toggle visibility of the cancel button. Default: true for confirm, false for alert (v1.1.0).' },
+    { category: 'confirm', name: 'timer', type: 'number (ms)', default: 'undefined', desc: 'Auto-dismiss timer in milliseconds that resolves modal automatically (v1.1.0).' },
+    { category: 'confirm', name: 'timerProgressBar', type: 'boolean', default: 'false', desc: 'Shows animated shrinking progress bar at the bottom when timer is active (v1.1.0).' },
+    { category: 'confirm', name: 'width', type: 'string | number', default: 'undefined', desc: 'Custom modal max-width (e.g. "600px" or 700) (v1.1.0).' },
+    { category: 'confirm', name: 'customClass', type: 'object', default: '{}', desc: 'Custom CSS class names for { popup, confirmButton, cancelButton, title, htmlContainer } (v1.1.0).' },
+    { category: 'confirm', name: 'reverseButtons', type: 'boolean', default: 'false', desc: 'Swaps the visual position of confirm and cancel buttons (v1.1.0).' },
+    { category: 'confirm', name: 'allowEscapeKey', type: 'boolean', default: 'true', desc: 'Allows closing the modal by pressing the ESC key (v1.1.0).' },
+    { category: 'confirm', name: 'allowOutsideClick', type: 'boolean', default: 'true', desc: 'Allows closing the modal by clicking outside the dialog area.' },
     { category: 'confirm', name: 'backdrop', type: 'boolean', default: 'true', desc: 'Displays dark overlay behind modal dialog.' },
     { category: 'confirm', name: 'backdropBlur', type: 'boolean', default: 'true', desc: 'Applies frosted-glass blur filter to the page behind the modal.' },
 
     // Prompt Modal Options
     { category: 'prompt', name: 'title', type: 'string', default: "''", desc: 'Headline title for the prompt modal dialog.' },
     { category: 'prompt', name: 'placeholder', type: 'string', default: "'Type here...'", desc: 'Placeholder text shown inside the modal input field.' },
-    { category: 'prompt', name: 'inputValue', type: 'string', default: "''", desc: 'Initial prefilled value inside the text input field.' },
+    { category: 'prompt', name: 'value', type: 'string', default: "''", desc: 'Initial prefilled value inside the text input field.' },
     { category: 'prompt', name: 'inputType', type: "'text' | 'email' | 'password' | 'number'", default: "'text'", desc: 'HTML input field type for validation and formatting.' },
     { category: 'prompt', name: 'required', type: 'boolean', default: 'false', desc: 'Prevents form submission if user input is empty.' },
+    { category: 'prompt', name: 'width', type: 'string | number', default: 'undefined', desc: 'Custom prompt modal width (v1.1.0).' },
+    { category: 'prompt', name: 'customClass', type: 'object', default: '{}', desc: 'Custom class names for prompt popup and buttons (v1.1.0).' },
+    { category: 'prompt', name: 'allowEscapeKey', type: 'boolean', default: 'true', desc: 'Close prompt on ESC key (v1.1.0).' },
     { category: 'prompt', name: 'confirmButtonText', type: 'string', default: "'Submit'", desc: 'Label text for submit button.' },
     { category: 'prompt', name: 'cancelButtonText', type: 'string', default: "'Cancel'", desc: 'Label text for cancel button.' },
 
@@ -332,8 +414,9 @@ toast.success('Step 3/3: Database synchronized!');`,
     { category: 'promise', name: 'success', type: 'string | function(data)', default: "'Success!'", desc: 'Message string or dynamic formatter function called when Promise resolves.' },
     { category: 'promise', name: 'error', type: 'string | function(err)', default: "'Error!'", desc: 'Message string or dynamic formatter function called when Promise rejects.' },
 
-    // Global Config Options
-    { category: 'config', name: 'toast.config(options)', type: 'object', default: '{}', desc: 'Sets default properties globally across all subsequent toast invocations in the application.' }
+    // Global Config & Helpers
+    { category: 'config', name: 'toast.config(options)', type: 'object', default: '{}', desc: 'Sets default properties globally across all subsequent toast invocations in the application.' },
+    { category: 'config', name: 'Notiva.escape(str)', type: 'function(string) -> string', default: '-', desc: 'Sanitizes and HTML-escapes dynamic user string to prevent XSS before passing to html option (v1.1.0).' }
   ];
 
   // Filter parameters by category and search keyword
